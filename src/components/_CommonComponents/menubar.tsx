@@ -36,7 +36,7 @@ export default MenuBar;
 
 const SidebarContainer = styled.aside`
   width: 240px;
-  height: 100vh;
+  height: 100%;
   background-color: var(--bg, #ffffff);
   border-right: 1px solid var(--border, #e5e4e7);
   
@@ -46,6 +46,8 @@ const SidebarContainer = styled.aside`
   box-sizing: border-box;
   flex-shrink: 0;
 `;
+
+
 
 const Logo = styled.h1`
   font-size: 20px;

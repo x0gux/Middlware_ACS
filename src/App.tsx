@@ -3,41 +3,40 @@ import { Suspense } from "react";
 import routes from "virtual:generated-pages-react";
 import MenuBar from "./components/_CommonComponents/menubar";
 import styled from "@emotion/styled";
+import "./index.css";
 
 function App() {
   const element = useRoutes(routes);
 
   return (
-    <AppLayout>
+    <MainLayout>
+
       <MenuBar />
-      <PageContent>
+      <ContentArea>
         <Suspense fallback={<p>Loading...</p>}>
           {element}
         </Suspense>
-      </PageContent>
-    </AppLayout>
+      </ContentArea>
+    </MainLayout>
   );
 }
 
 export default App;
 
-const AppLayout = styled.div`
-  display : flex;
-  flex-direction : row;
 
-  justify-content : left;
-  margin :0px;
-  padding : 0px;
-`
 
-const PageContent = styled.div`
-  display : flex;
-  flex-direction : column;
+const MainLayout = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden; 
+`;
 
-  justify-content : flex-start;
-  align-items : left;
-
-  width : 100%;
-  margin :24px;
-
-`
+const ContentArea = styled.main`
+  flex: 1; 
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+`;
