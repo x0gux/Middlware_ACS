@@ -101,29 +101,56 @@ const DashboardCard = ({ type, chartData, alerts }: DashboardCardProps) => {
     }
 
     if (type === "_Task_summary") {
+        const taskData = {
+            pending: 8,
+            inProgress: 14,
+            completed: 142,
+            failed: 2,
+        };
+
+        const total = taskData.pending + taskData.inProgress + taskData.completed + taskData.failed;
+
+        const p1 = (taskData.completed / total) * 100;
+        const p2 = p1 + (taskData.inProgress / total) * 100;
+        const p3 = p2 + (taskData.pending / total) * 100;
+
         return (
             <CardContainer type={type}>
                 <CardHeader>
                     <p>작업 처리 현황</p>
                 </CardHeader>
-                <StatusGrid>
-                    <MiniStatBox>
-                        <span>대기 중</span>
-                        <strong style={{ color: "#7e22ce" }}>8</strong>
-                    </MiniStatBox>
-                    <MiniStatBox>
-                        <span>진행 중</span>
-                        <strong style={{ color: "#2563eb" }}>14</strong>
-                    </MiniStatBox>
-                    <MiniStatBox>
-                        <span>완료</span>
-                        <strong style={{ color: "#16a34a" }}>142</strong>
-                    </MiniStatBox>
-                    <MiniStatBox>
-                        <span>지연/실패</span>
-                        <strong style={{ color: "#dc2626" }}>2</strong>
-                    </MiniStatBox>
-                </StatusGrid>
+
+                <TaskChartWrapper>
+                    <DonutChart $p1={p1} $p2={p2} $p3={p3}>
+                        <DonutCenter>
+                            <span>전체 작업</span>
+                            <strong>{total}건</strong>
+                        </DonutCenter>
+                    </DonutChart>
+
+                    <ChartLegend>
+                        <LegendItem $color="#16a34a">
+                            <span className="dot" />
+                            <span className="label">완료</span>
+                            <strong>{taskData.completed}</strong>
+                        </LegendItem>
+                        <LegendItem $color="#2563eb">
+                            <span className="dot" />
+                            <span className="label">진행 중</span>
+                            <strong>{taskData.inProgress}</strong>
+                        </LegendItem>
+                        <LegendItem $color="#7e22ce">
+                            <span className="dot" />
+                            <span className="label">대기 중</span>
+                            <strong>{taskData.pending}</strong>
+                        </LegendItem>
+                        <LegendItem $color="#dc2626">
+                            <span className="dot" />
+                            <span className="label">지연/실패</span>
+                            <strong>{taskData.failed}</strong>
+                        </LegendItem>
+                    </ChartLegend>
+                </TaskChartWrapper>
             </CardContainer>
         );
     }
@@ -212,7 +239,7 @@ const DashboardCard = ({ type, chartData, alerts }: DashboardCardProps) => {
 
 export default DashboardCard;
 
-/* ================= Styled Components ================= */
+/* ================= Styled Components (오타 수정 영역) ================= */
 
 type StatusType = "online" | "offline" | "error";
 
@@ -226,7 +253,6 @@ const CardContainer = styled.div<{ type: CardType }>`
   background-color: #ffffff;
   box-shadow: 0 4px 20px rgba(168, 85, 247, 0.05);
 
-  /* Grid 너비 분기 (2칸 / 1칸) */
   grid-column: ${(props) => {
         if (
             props.type === "_Recent_alerts" ||
@@ -234,29 +260,29 @@ const CardContainer = styled.div<{ type: CardType }>`
             props.type === "_Chart"
         ) {
             return "span 2";
-        }
-        else if (props.type === "_Mini_map") {
+        } else if (props.type === "_Mini_map") {
             return "span 4";
         }
         return "span 1";
     }};
 
-  /* Grid 높이 분기 (2칸 / 1칸) */
+  /* 💡 1. grid - row -> grid-row 오타 수정 */
   grid-row: ${(props) => {
         if (props.type === "_Chart" || props.type === "_Mini_map") {
             return "span 2";
         }
         return "span 1";
     }};
-  
+
   display: flex;
-  /* 💡 단순 숫자 카드류만 row 정렬, 헤더가 필요한 복합 카드는 column 정렬 */
+  /* 💡 2. flex - direction -> flex-direction 오타 수정 */
   flex-direction: ${(props) =>
         props.type === "_ActiveRobot" ||
             props.type === "_Device_all" ||
             props.type === "_Device_error"
             ? "row"
             : "column"};
+  /* 💡 3. space - between / border - box 오타 수정 */
   justify-content: space-between;
   align-items: stretch;
   gap: 12px;
@@ -269,6 +295,7 @@ const CardContainer = styled.div<{ type: CardType }>`
   }
 `;
 
+/* 💡 4. 100 % / font - size 오타 일괄 수정 */
 const CardHeader = styled.div`
   width: 100%;
   p {
@@ -326,30 +353,84 @@ const InfoBox = styled.div<{ $status: StatusType }>`
   }
 `;
 
-const StatusGrid = styled.div`
+const TaskChartWrapper = styled.div`
   width: 100%;
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 16px;
 `;
 
-const MiniStatBox = styled.div`
-  background: #fcfaff;
-  border: 1px solid #f3e8ff;
-  border-radius: 8px;
-  padding: 8px 12px;
+const DonutChart = styled.div<{ $p1: number; $p2: number; $p3: number }>`
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  /* 💡 5. conic - gradient 오타 수정 */
+  background: conic-gradient(
+    #16a34a 0% ${(props) => props.$p1}%,
+    #2563eb ${(props) => props.$p1}% ${(props) => props.$p2}%,
+    #7e22ce ${(props) => props.$p2}% ${(props) => props.$p3}%,
+    #dc2626 ${(props) => props.$p3}% 100%
+  );
+`;
+
+const DonutCenter = styled.div`
+  width: 55px;
+  height: 55px;
+  background-color: #ffffff;
+  border-radius: 50%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
 
   span {
-    font-size: 12px;
+    font-size: 10px;
     color: #64748b;
   }
   strong {
-    font-size: 18px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #334155;
+  }
+`;
+
+const ChartLegend = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const LegendItem = styled.div<{ $color: string }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: ${(props) => props.$color};
+    margin-right: 6px;
+  }
+
+  .label {
+    flex: 1;
+    color: #64748b;
+  }
+
+  strong {
     font-weight: 700;
+    color: #334155;
   }
 `;
 
@@ -359,21 +440,21 @@ const BatteryContent = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
 `;
 
 const BatteryItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 12px;
   color: #475569;
 
   span {
-    width: 130px;
+    width: 110px;
   }
   strong {
-    width: 60px;
+    width: 50px;
     text-align: right;
   }
 `;
@@ -405,8 +486,8 @@ const AlertList = styled.div`
 const AlertRow = styled.div<{ $level: "error" | "warning" }>`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
+  gap: 8px;
+  padding: 6px 10px;
   border-radius: 6px;
   font-size: 12px;
   background-color: ${(props) => (props.$level === "error" ? "#fff1f2" : "#fffbebe6")};
@@ -428,7 +509,7 @@ const AlertRow = styled.div<{ $level: "error" | "warning" }>`
 const MapCanvasPlaceholder = styled.div`
   width: 100%;
   flex: 1;
-  min-height: 200px;
+  min-height: 180px;
   background-color: #faf5ff;
   border: 1px dashed #d8b4fe;
   border-radius: 8px;
@@ -464,5 +545,5 @@ const RobotIcon = styled.div<{ $status: "active" | "warning" }>`
 const ChartWrapper = styled.div`
   width: 100%;
   flex: 1;
-  min-height: 200px;
+  min-height: 180px;
 `;
