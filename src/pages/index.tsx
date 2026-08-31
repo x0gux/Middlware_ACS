@@ -12,7 +12,6 @@ const App = () => {
         <DashboardCard type="_Task_summary" />
         <DashboardCard type="_Battery_info" />
         <DashboardCard type="_Recent_alerts" />
-        <DashboardCard type="_Mini_map" />
       </SummarySection>
     </Container>
   );

@@ -10,6 +10,20 @@ const RecentAlertsCard = ({ alerts }: Props) => {
         { id: "1", time: "14:02:11", robotId: "AGV-02", message: "장애물 지속 감지 정지", level: "error" },
         { id: "2", time: "13:58:45", robotId: "AMR-05", message: "배터리 부족 (15%)", level: "warning" },
         { id: "3", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "4", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "5", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "6", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "7", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "8", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "9", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "10", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "11", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "12", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "13", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "14", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "15", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "16", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
+        { id: "17", time: "13:40:02", robotId: "AGV-01", message: "경로 이탈 경고", level: "warning" },
     ];
 
     return (
@@ -29,10 +43,33 @@ const RecentAlertsCard = ({ alerts }: Props) => {
 };
 
 export default RecentAlertsCard;
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
 
-const Wrapper = styled.div` display: flex; flex-direction: column; justify-content: space-between; height: 100%; gap: 12px; `;
-const CardHeader = styled.div` width: 100%; p { font-size: 14px; font-weight: 700; color: #581c87; margin: 0; } `;
-const AlertList = styled.div` width: 100%; flex: 1; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; `;
+  height: 250px;
+  gap: 12px;
+`;
+
+const CardHeader = styled.div`
+  width: 100%;
+  p {
+    font-size: 14px;
+    font-weight: 700;
+    color: #581c87;
+    margin: 0;
+  }
+`;
+
+const AlertList = styled.div`
+  width: 100%;
+  flex: 1;
+  min-height: 90%; 
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+`;
 const AlertRow = styled.div<{ $level: "error" | "warning" }>`
   display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; font-size: 12px;
   background-color: ${(props) => (props.$level === "error" ? "#fff1f2" : "#fffbebe6")};

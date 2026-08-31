@@ -41,21 +41,73 @@ const TaskSummaryCard = () => {
 export default TaskSummaryCard;
 
 const Wrapper = styled.div`
-  display: flex; flex-direction: column; justify-content: space-between; height: 100%; gap: 12px;
+  display: flex; 
+  flex-direction: column; 
+  height: 100%; 
+  gap: 16px;
 `;
-const CardHeader = styled.div` width: 100%; p { font-size: 14px; font-weight: 700; color: #581c87; margin: 0; } `;
-const TaskChartWrapper = styled.div` width: 100%; flex: 1; display: flex; align-items: center; justify-content: space-around; gap: 16px; `;
+
+const CardHeader = styled.div` 
+  width: 100%; 
+  p { font-size: 14px; font-weight: 700; color: #581c87; margin: 0; } 
+`;
+
+
+const TaskChartWrapper = styled.div` 
+  width: 100%; 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center; 
+  gap: 20px; 
+`;
+
 const DonutChart = styled.div<{ $p1: number; $p2: number; $p3: number }>`
-  width: 90px; height: 90px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  background: conic-gradient(#16a34a 0% ${(props) => props.$p1}%, #2563eb ${(props) => props.$p1}% ${(props) => props.$p2}%, #7e22ce ${(props) => props.$p2}% ${(props) => props.$p3}%, #dc2626 ${(props) => props.$p3}% 100%);
+  width: 200px; 
+  height: 200px; 
+  border-radius: 50%; 
+  position: relative; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  flex-shrink: 0;
+  background: conic-gradient(
+    #16a34a 0% ${(props) => props.$p1}%, 
+    #2563eb ${(props) => props.$p1}% ${(props) => props.$p2}%, 
+    #7e22ce ${(props) => props.$p2}% ${(props) => props.$p3}%, 
+    #dc2626 ${(props) => props.$p3}% 100%
+  );
 `;
+
+/* 중앙 원 및 폰트 크기 확대 */
 const DonutCenter = styled.div`
-  width: 55px; height: 55px; background-color: #ffffff; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  span { font-size: 10px; color: #64748b; } strong { font-size: 12px; font-weight: 800; color: #334155; }
+  width: 90px; 
+  height: 90px; 
+  background-color: #ffffff; 
+  border-radius: 50%; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center;
+  span { font-size: 11px; color: #64748b; } 
+  strong { font-size: 16px; font-weight: 800; color: #334155; }
 `;
-const ChartLegend = styled.div` flex: 1; display: flex; flex-direction: column; gap: 4px; `;
+
+/* 범주 아이템들을 하단에서 2컬럼 grid 또는 가로 배치에 적합하도록 정렬 */
+const ChartLegend = styled.div` 
+  width: 100%; 
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px; 
+`;
+
 const LegendItem = styled.div<{ $color: string }>`
-  display: flex; align-items: center; justify-content: space-between; font-size: 11px;
-  .dot { width: 6px; height: 6px; border-radius: 50%; background-color: ${(props) => props.$color}; margin-right: 6px; }
-  .label { flex: 1; color: #64748b; } strong { font-weight: 700; color: #334155; }
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  font-size: 16px;
+  .dot { width: 8px; height: 8px; border-radius: 50%; background-color: ${(props) => props.$color}; margin-right: 6px; }
+  .label { flex: 1; color: #64748b; } 
+  strong { font-weight: 700; color: #334155; }
 `;

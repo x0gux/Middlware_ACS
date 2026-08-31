@@ -4,7 +4,6 @@ import DeviceStatCard from "./cards/DeviceStatCard.tsx";
 import TaskSummaryCard from "./cards/TaskSummaryCard.tsx";
 import BatteryInfoCard from "./cards/BatteryInfoCard.tsx";
 import RecentAlertsCard from "./cards/RecentAlertsCard.tsx";
-import MiniMapCard from "./cards/MiniMapCard.tsx";
 import RealtimeChartCard from "./cards/RealtimeChartCard.tsx";
 
 export type CardType =
@@ -14,8 +13,7 @@ export type CardType =
     | "_Chart"
     | "_Task_summary"
     | "_Battery_info"
-    | "_Recent_alerts"
-    | "_Mini_map";
+    | "_Recent_alerts";
 
 export interface AlertItem {
     id: string;
@@ -40,7 +38,6 @@ const DashboardCard = ({ type, chartData, alerts }: DashboardCardProps) => {
             {type === "_Task_summary" && <TaskSummaryCard />}
             {type === "_Battery_info" && <BatteryInfoCard />}
             {type === "_Recent_alerts" && <RecentAlertsCard alerts={alerts} />}
-            {type === "_Mini_map" && <MiniMapCard />}
             {type === "_Chart" && <RealtimeChartCard chartData={chartData} />}
         </CardContainer>
     );
@@ -63,20 +60,20 @@ const CardContainer = styled.div<{ type: CardType }>`
   box-sizing: border-box;
 
   grid-column: ${(props) => {
-        if (
-            props.type === "_Recent_alerts" ||
-            props.type === "_ActiveRobot" ||
-            props.type === "_Chart"
-        ) {
+        if (props.type === "_ActiveRobot" ||
+            props.type === "_Chart") {
             return "span 2";
-        } else if (props.type === "_Mini_map") {
+        } else if (props.type === "_Recent_alerts") {
             return "span 4";
         }
         return "span 1";
     }};
 
   grid-row: ${(props) => {
-        if (props.type === "_Chart" || props.type === "_Mini_map") {
+        if (props.type === "_Chart" ||
+            props.type === "_Task_summary" ||
+            props.type === "_Battery_info"
+        ) {
             return "span 2";
         }
         return "span 1";
