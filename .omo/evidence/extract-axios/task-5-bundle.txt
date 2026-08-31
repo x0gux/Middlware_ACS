@@ -1,0 +1,5 @@
+dist_index_html_exists=True
+assets_js_files=1
+literal_found_in=C:\Users\AXBIS\Desktop\middleware_20260826\my-app\dist\assets\index-4OGfQfpS.js
+escaped_unicode_found_in=
+VERDICT: PASS (index.html present + Korean button label found in built JS)

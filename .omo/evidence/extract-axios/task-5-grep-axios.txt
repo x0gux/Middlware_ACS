@@ -1,0 +1,4 @@
+file=src/App.tsx
+pattern='axios'
+match_count=0
+VERDICT: PASS (count==0)

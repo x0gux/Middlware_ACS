@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "active_work_id": "map-canvas-implementation-efeca83e",
+  "works": {
+    "map-canvas-implementation-efeca83e": {
+      "work_id": "map-canvas-implementation-efeca83e",
+      "active_plan": "C:\\Users\\AXBIS\\Desktop\\middleware_20260826\\my-app\\.omo\\plans\\map-canvas-implementation.md",
+      "plan_name": "map-canvas-implementation",
+      "status": "active",
+      "started_at": "2026-08-27T00:44:24.447Z",
+      "updated_at": "2026-08-27T01:00:08.658Z",
+      "session_ids": [
+        "opencode:ses_fbf5b5d9dffeJ7fnGb2naHMDuB",
+        "opencode:ses_fc2ffe2f7ffeTYivyrp1QmHlDe"
+      ],
+      "session_origins": {
+        "opencode:ses_fbf5b5d9dffeJ7fnGb2naHMDuB": "direct",
+        "opencode:ses_fc2ffe2f7ffeTYivyrp1QmHlDe": "direct"
+      },
+      "agent": "atlas",
+      "task_sessions": {}
+    }
+  },
+  "active_plan": "C:\\Users\\AXBIS\\Desktop\\middleware_20260826\\my-app\\.omo\\plans\\map-canvas-implementation.md",
+  "started_at": "2026-08-27T00:44:24.447Z",
+  "status": "active",
+  "updated_at": "2026-08-27T01:00:08.658Z",
+  "session_ids": [
+    "opencode:ses_fbf5b5d9dffeJ7fnGb2naHMDuB",
+    "opencode:ses_fc2ffe2f7ffeTYivyrp1QmHlDe"
+  ],
+  "session_origins": {
+    "opencode:ses_fbf5b5d9dffeJ7fnGb2naHMDuB": "direct",
+    "opencode:ses_fc2ffe2f7ffeTYivyrp1QmHlDe": "direct"
+  },
+  "plan_name": "map-canvas-implementation",
+  "task_sessions": {},
+  "agent": "atlas"
+}

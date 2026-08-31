@@ -1,0 +1,15 @@
+cleanup receipt - extract-axios (plan v2)
+date: 2026-08-26
+
+- dev servers started by this session: none
+- temp files/dirs created outside .omo/evidence/extract-axios/: none
+- negative-test mutation reverted: YES - src/App.tsx restored to approved v2 content;
+  post-restore grep confirms 0 occurrences of 'BROKEN' under src/ and 0 'axios' in src/App.tsx
+- product files changed: src/types/robot.ts (new), src/api/robot.ts (new), src/App.tsx (rewritten)
+- guardrail files untouched: src/components/main/menubar.tsx, src/main.tsx, src/index.css,
+  package.json, tsconfig*.json
+- dist/ contains fresh build outputs from task-5-build.log run (expected artifact, not temp)
+- note: vite emits a pre-existing [vite:css][postcss] @import-order warning originating in
+  src/index.css (untouched per guardrails); warning only - build exits 0
+
+receipt: CLEAN
