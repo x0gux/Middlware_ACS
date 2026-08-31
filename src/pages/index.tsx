@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import DashboardCard from "../components/_CommonComponents/dashboardcard";
+import DashboardCard from "../components/_CommonComponents/_Dashboard/dashboardcard";
 
 const App = () => {
   return (
