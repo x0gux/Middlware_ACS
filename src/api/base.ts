@@ -1,6 +1,5 @@
 import axios from "axios";
 import type { ThirdPartyDataType } from "../types/base";
-import type { RobotStatus } from "../types/device";
 
 // ── Server config ──────────────────────────────────────────────
 export const HTTP_BASE = "/api";

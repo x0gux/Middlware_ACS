@@ -1,7 +1,7 @@
 import { MAP_CODE, postDigitalTwin } from "./base";
 import type { ConnectionInfo } from "../types/connection";
 import type { LineInfo, NodeInfo, EdgeInfo } from "../types/node";
-import type { RobotStatus, ChargerStatus, ApiResponse } from "../types/device";
+import type { RobotStatus, ChargerStatus } from "../types/device";
 import type { TaskDto } from "../types/work";
 
 // ── C# 미들웨어 엔드포인트 연동 (ThirdParty Handlers) ──────────────
@@ -19,15 +19,42 @@ export const fetchRobotStatus = () =>
   postDigitalTwin<RobotStatus[]>('thirdparty/robots');
 
 
+// 함수 외부에 최신 성공 데이터를 보관할 변수 선언
+let lastKnownRobots: RobotStatus[] = [];
+let lastKnownChargers: ChargerStatus[] = [];
+
 export const fetchDeviceStatus = async () => {
   const [robots, chargers] = await Promise.all([
-    postDigitalTwin<RobotStatus[]>('thirdparty/robots'),
-    postDigitalTwin<ChargerStatus[]>('thirdparty/chargers'),
+    // 1. 로봇 요청
+    postDigitalTwin<RobotStatus[]>('thirdparty/robots')
+      .then((data) => {
+        if (Array.isArray(data)) {
+          lastKnownRobots = data; // 성공 시 최신값 갱신
+        }
+        return lastKnownRobots;
+      })
+      .catch((err) => {
+        console.warn('로봇 조회 실패 - 이전 성공 데이터 유지:', err);
+        return lastKnownRobots; // 실패 시 이전 성공 데이터 반환
+      }),
+
+    // 2. 충전기 요청
+    postDigitalTwin<ChargerStatus[]>('thirdparty/chargers')
+      .then((data) => {
+        if (Array.isArray(data)) {
+          lastKnownChargers = data; // 성공 시 최신값 갱신
+        }
+        return lastKnownChargers;
+      })
+      .catch((err) => {
+        console.warn('충전기 조회 실패 - 이전 성공 데이터 유지:', err);
+        return lastKnownChargers; // 실패 시 이전 성공 데이터 반환
+      }),
   ]);
 
   return {
-    robots: robots ?? [],
-    chargers: chargers ?? [],
+    robots,
+    chargers,
   };
 };
 /** 맵 상세 정보를 통한 노드 목록 (Path: "thirdparty/maps/info") */

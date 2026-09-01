@@ -241,7 +241,7 @@ export default function AmrMapCanvas() {
       ctx.font = `bold ${Math.max(10, 12 * Math.min(transform.scale, 1.5))}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      ctx.fillText(robot.robotId, cx, cy - half - 6);
+      ctx.fillText(robot.id, cx, cy - half - 6);
       ctx.textAlign = 'left';
       ctx.textBaseline = 'alphabetic';
     });

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
     fetchConnectionInfo,
     fetchLineInfo,
@@ -30,6 +30,8 @@ export const digitalTwinKeys = {
 };
 
 // ── 2. Query Hooks (조회 계열) ──────────────────────────────────
+// 폴링 조회들은 placeholderData: keepPreviousData 로 실패 시 이전 데이터를 유지해
+// 일시적 오류에도 화면이 비워지지 않도록 한다. (성공 시 다음 폴링에서 갱신)
 
 /** 대외 연결 상태 */
 export const useGetConnectionInfo = () => {
@@ -37,6 +39,7 @@ export const useGetConnectionInfo = () => {
         queryKey: digitalTwinKeys.connection(),
         queryFn: fetchConnectionInfo,
         refetchInterval: 5000,
+        placeholderData: keepPreviousData,
     });
 };
 
@@ -46,6 +49,7 @@ export const useGetLineInfo = () => {
         queryKey: digitalTwinKeys.line(),
         queryFn: fetchLineInfo,
         refetchInterval: 3000,
+        placeholderData: keepPreviousData,
     });
 };
 
@@ -55,6 +59,7 @@ export const useGetRobotStatus = () => {
         queryKey: digitalTwinKeys.robots(),
         queryFn: fetchRobotStatus,
         refetchInterval: 3000,
+        placeholderData: keepPreviousData,
     });
 };
 
@@ -62,7 +67,8 @@ export const useGetDeviceStatus = () => {
     return useQuery({
         queryKey: digitalTwinKeys.devices(),
         queryFn: fetchDeviceStatus,
-        refetchInterval: 5000,
+        refetchInterval: 3000,
+        placeholderData: keepPreviousData,
     });
 };
 
@@ -90,6 +96,7 @@ export const useGetWorkSection = () => {
         queryKey: digitalTwinKeys.works(),
         queryFn: fetchWorkSection,
         refetchInterval: 2000,
+        placeholderData: keepPreviousData,
     });
 };
 
@@ -99,6 +106,7 @@ export const useGetMissionSection = () => {
         queryKey: digitalTwinKeys.missions(),
         queryFn: fetchMissionSection,
         refetchInterval: 2000,
+        placeholderData: keepPreviousData,
     });
 };
 
@@ -108,6 +116,7 @@ export const useGetReservationSection = () => {
         queryKey: digitalTwinKeys.reservations(),
         queryFn: fetchReservationSection,
         refetchInterval: 2000,
+        placeholderData: keepPreviousData,
     });
 };
 
@@ -117,6 +126,7 @@ export const useGetAlarms = () => {
         queryKey: digitalTwinKeys.alarms(),
         queryFn: fetchAlarms,
         refetchInterval: 3000,
+        placeholderData: keepPreviousData,
     });
 };
 

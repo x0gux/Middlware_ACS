@@ -6,9 +6,16 @@ import ChargerCard from "../../components/_DeviceComponents/chargercard";
 const DeviceManagement = () => {
   const { data: deviceData, isLoading, isError, error, refetch } = useGetDeviceStatus();
 
-  const robots = deviceData?.robots ?? [];
-  const chargers = deviceData?.chargers ?? [];
-  const isEmpty = robots.length === 0 && chargers.length === 0;
+  // 단독 null / undefined 들어올 경우를 대비해 Array.isArray 가드 적용
+  const robots = Array.isArray(deviceData?.robots) ? deviceData.robots : [];
+  const chargers = Array.isArray(deviceData?.chargers) ? deviceData.chargers : [];
+
+  const hasRobots = robots.length > 0;
+  const hasChargers = chargers.length > 0;
+  const isEmpty = !hasRobots && !hasChargers;
+
+  // 전체 데이터가 아예 없을 때만 isError 화면 노출 (부분 수신 시 수신 데이터 우선 노출)
+  const shouldShowError = isError && isEmpty;
 
   return (
     <PageWrapper>
@@ -26,30 +33,30 @@ const DeviceManagement = () => {
         </LoadingState>
       )}
 
-      {isError && (
+      {shouldShowError && (
         <ErrorState>
           <p>{error?.message || "ThirdParty 서버 통신에 실패했습니다."}</p>
           <RetryButton onClick={() => refetch()}>다시 시도</RetryButton>
         </ErrorState>
       )}
 
-      {!isLoading && !isError && isEmpty && (
+      {!isLoading && !shouldShowError && isEmpty && (
         <EmptyState>
           <p>연결된 기기가 없습니다.</p>
         </EmptyState>
       )}
 
-      {!isLoading && !isError && !isEmpty && (
+      {!isLoading && !shouldShowError && !isEmpty && (
         <ContentContainer>
           {/* 로봇 섹션 */}
           <Section>
             <SectionTitle>
               로봇 목록 <span>({robots.length}대)</span>
             </SectionTitle>
-            {robots.length > 0 ? (
+            {hasRobots ? (
               <GridContainer>
                 {robots.map((robot, index) => (
-                  <DeviceCard key={robot.id ?? index} data={robot} />
+                  <DeviceCard key={robot.id ?? `robot-${index}`} data={robot} />
                 ))}
               </GridContainer>
             ) : (
@@ -62,10 +69,10 @@ const DeviceManagement = () => {
             <SectionTitle>
               충전기 목록 <span>({chargers.length}대)</span>
             </SectionTitle>
-            {chargers.length > 0 ? (
+            {hasChargers ? (
               <GridContainer>
                 {chargers.map((charger, index) => (
-                  <ChargerCard key={charger.id ?? index} data={charger} />
+                  <ChargerCard key={charger.id ?? `charger-${index}`} data={charger} />
                 ))}
               </GridContainer>
             ) : (
@@ -80,14 +87,14 @@ const DeviceManagement = () => {
 
 export default DeviceManagement;
 
-
+// ── Styled Components ──────────────────────────────────────────
 
 const PageWrapper = styled.div`
   width: 100%;
   height: 100%;
   padding: 24px;
   box-sizing: border-box;
-  overflow-y: hidden;
+  overflow-y: auto; /* hidden -> auto 변경: 카드 누적으로 인한 하단 자름 방지 */
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -105,7 +112,7 @@ const TitleGroup = styled.div`
   h2 {
     font-size: 24px;
     font-weight: 800;
-    color: #3b0764; 
+    color: #3b0764;
     margin: 0 0 4px 0;
   }
   p {

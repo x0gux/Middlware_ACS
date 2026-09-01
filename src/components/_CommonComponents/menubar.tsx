@@ -7,7 +7,7 @@ const MenuBar = () => {
 
     const menuItems = [
         { label: "대시보드", path: "/" },
-        { label: "맵 뷰", path: "/tusktmap" },
+        { label: "맵 뷰", path: "/tuskmap" },
         { label: "작업 내역", path: "/tuskwork" },
         { label: "기기 목록", path: "/tuskdevice" },
     ];

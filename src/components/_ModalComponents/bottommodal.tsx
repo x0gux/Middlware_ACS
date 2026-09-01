@@ -45,14 +45,14 @@ export default function MapInfoModal({ info, onClose }: MapInfoModalProps) {
     setBusy(true);
     setMessage(null);
     try {
-      const robotId = info.data.robotId;
+      const robotId = info.data.id;
       let result;
       if (command === 'move') result = await moveRobot(robotId, targetNode);
       else if (command === 'rackmove') result = await rackMoveRobot(robotId, startNode, targetNode);
       else if (command === 'charge') result = await chargeRobot(robotId, targetNode);
       else return;
 
-      setMessage(result.success ? '명령 전송 성공' : `실패 (${result.code}: ${result.message ?? ''})`);
+      setMessage(result.success ? '명령 전송 성공' : `실패 (${result.message ?? ''})`);
       setCommand(null);
     } catch (e) {
       setMessage(`명령 전송 실패: ${e instanceof Error ? e.message : String(e)}`);
@@ -75,9 +75,9 @@ export default function MapInfoModal({ info, onClose }: MapInfoModalProps) {
           <InfoGroup>
             <Infoname>
               <MainText>
-                {isRobot ? `로봇 ID: ${info.data.robotId}` : `노드: ${info.data.nodeLabel}`}
+                {isRobot ? `로봇 ID: ${info.data.id}` : `노드: ${info.data.nodeLabel}`}
               </MainText>
-              {isRobot && <SubText>배터리: {info.data.batteryLevel}%</SubText>}
+              {isRobot && <SubText>배터리: {info.data.batteryCharge}%</SubText>}
               {isRobot && info.data.taskId && <SubText>현재 작업: {info.data.taskId}</SubText>}
               {!isRobot && (
                 <SubText>
