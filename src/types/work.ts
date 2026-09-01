@@ -1,33 +1,36 @@
-// ── 작업(미션) 정보 (DigitalTwin WorkingInfo/MissionInfo/ReservationInfo) ──
-// 세 조회는 공통으로 AMRWorkingDictionary[{ Key, Value }] 를 내려준다.
-
-/** WorkingType (byte): 0=Auto, 1=Manual */
-export type WorkingType = 0 | 1;
-
-/**
- * 미들웨어 AMRWorkingContents (TUSK TaskCreate 기준).
- * K-MReS 시절의 missionData/robotIds/missionType/containerCode/templateCode 는
- * targets/configId/containerId/robotId 로 대체되었다.
- */
-export interface WorkingContents {
-  line: string;
-  rack: string;
-  workingType: WorkingType;
-  priority: number | null;
-  targets: string[];
-  configId: string;
-  containerId: string;
-  containerTypeId: number | null;
-  robotId: string;
-  robotGroup: string;
-  lockRobotAfterFinish: boolean;
-  unlockRobotId: string;
-  errorCode: string;
-  taskId: string;
+// 백엔드 ApiResult 응답 구조
+export interface ApiResult<T> {
+  ok: boolean;
+  error?: string | null;
+  data?: T | null;
 }
 
-/** AMRWorkingDictionary 항목 */
-export interface WorkingStatus {
-  Key: string;
-  Value: WorkingContents;
+// C# TaskDto 대응
+export interface TaskDto {
+  id: string;
+  sequence: number;
+  targets: string[];
+  priority?: number | null;
+  state: string; // e.g. "Created", "Running", "Completed", "Cancelled"
+  rawStatus?: string | null;
+  lastError?: string | null;
+  origin: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// C# TaskConfigDto 대응 (미션 섹션용)
+export interface TaskConfigDto {
+  name?: string | null;
+  robotGroup?: string | null;
+  containerType?: number | null;
+}
+
+// 예약 작업 DTO
+export interface ReservationDto {
+  id: string;
+  taskId?: string;
+  scheduledTime: string;
+  robotId?: string;
+  status: string;
 }

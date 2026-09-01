@@ -2,7 +2,7 @@ import { MAP_CODE, postDigitalTwin } from "./base";
 import type { ConnectionInfo } from "../types/connection";
 import type { LineInfo, NodeInfo, EdgeInfo } from "../types/node";
 import type { RobotStatus, ChargerStatus, ApiResponse } from "../types/device";
-import type { WorkingStatus } from "../types/work";
+import type { TaskDto } from "../types/work";
 
 // ── C# 미들웨어 엔드포인트 연동 (ThirdParty Handlers) ──────────────
 
@@ -22,7 +22,7 @@ export const fetchRobotStatus = () =>
 export const fetchDeviceStatus = async () => {
   const [robots, chargers] = await Promise.all([
     postDigitalTwin<RobotStatus[]>('thirdparty/robots'),
-    postDigitalTwin<ChargerStatus[]>('thirdparty/chargers').catch(() => null),
+    postDigitalTwin<ChargerStatus[]>('thirdparty/chargers'),
   ]);
 
   return {
@@ -40,15 +40,15 @@ export const fetchEdgeStatus = () =>
 
 /** 전체/수행 중 작업 목록 (Path: "thirdparty/tasks") */
 export const fetchWorkSection = () =>
-  postDigitalTwin<WorkingStatus[]>('thirdparty/tasks');
+  postDigitalTwin<TaskDto[]>('thirdparty/tasks');
 
 /** 대기 중 작업 목록 (Path: "thirdparty/tasks") */
 export const fetchMissionSection = () =>
-  postDigitalTwin<WorkingStatus[]>('thirdparty/tasks');
+  postDigitalTwin<TaskDto[]>('thirdparty/tasks');
 
 /** 예약된 작업 목록 (Path: "thirdparty/tasks") */
 export const fetchReservationSection = () =>
-  postDigitalTwin<WorkingStatus[]>('thirdparty/tasks');
+  postDigitalTwin<TaskDto[]>('thirdparty/tasks');
 
 // ── 미들웨어 추가 엔드포인트 ──────────────────────────────────────
 
