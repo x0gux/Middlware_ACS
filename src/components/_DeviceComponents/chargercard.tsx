@@ -1,47 +1,48 @@
-import type { RobotStatus } from "../../types/device";
+import type { ChargerStatus } from "../../types/device";
 import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
-import { getStatusInfo } from "../../libs/statuscolor";
+
+
 interface DeviceCardProps {
-  data: RobotStatus;
+  data: ChargerStatus;
 }
-const DeviceCard = ({ data }: DeviceCardProps) => {
+
+const ChargerCard = ({ data }: DeviceCardProps) => {
   const navigate = useNavigate();
-  const statusInfo = getStatusInfo(data);
 
-
-  const robotId = data.id;
-  const battery = data.batteryCharge;
-  const posX = typeof data.x === "number" ? data.x.toFixed(2) : "0.00";
-  const posY = typeof data.y === "number" ? data.y.toFixed(2) : "0.00";
+  const chargerId = data.id;
+  const robotSoc = data.robotSoc;
 
   return (
-    <DeviceCardLayout onClick={() => navigate(`${robotId}`, { state: data })}>
+    <DeviceCardLayout onClick={() => navigate(`${chargerId}`, { state: data })}>
       <Header>
-        <MainText>로봇 ID: {robotId}</MainText>
-        <StatusBadge $color={statusInfo.color} $bg={statusInfo.bg}>
-          {statusInfo.text}
-        </StatusBadge>
+        <MainText>충전기 ID: {chargerId}</MainText>
       </Header>
 
       <ContentGroup>
         <SubText>기기 타입 : {data.deviceType || "미지정"}</SubText>
         <SubText>
-          배터리 : <strong>{battery}%</strong>
+          충전 상태 : {data.stat || (data.available ? "사용 가능" : "충전 중")}
         </SubText>
         <SubText>
-          적재 상태 : {data.load === true ? "적재됨" : "비어있음"}
+          연결된 로봇 : {data.robotId ? <strong>{data.robotId}</strong> : "없음"}
         </SubText>
         <SubText>
-          현재 위치 : ({posX}, {posY})
+          로봇 배터리 잔량 :{" "}
+          <strong>
+            {robotSoc !== null && robotSoc !== undefined ? `${robotSoc}%` : "-"}
+          </strong>
         </SubText>
-        <SubText>현재 작업 : {data.taskId || "대기중"}</SubText>
+        <SubText>맵 ID : {data.mapId || "미지정"}</SubText>
+        <SubText>IP 주소 : {data.ip || "미지정"}</SubText>
       </ContentGroup>
     </DeviceCardLayout>
   );
 };
 
-export default DeviceCard;
+export default ChargerCard;
+
+/* ── UI Styles (기존과 동일) ───────────────────────────────── */
 
 const DeviceCardLayout = styled.div`
   width: 100%;
@@ -74,14 +75,6 @@ const MainText = styled.h3`
   margin: 0;
 `;
 
-const StatusBadge = styled.span<{ $color: string; $bg: string }>`
-  font-size: 12px;
-  font-weight: 600;
-  color: ${(props) => props.$color};
-  background-color: ${(props) => props.$bg};
-  padding: 4px 8px;
-  border-radius: 6px;
-`;
 
 const ContentGroup = styled.div`
   display: flex;

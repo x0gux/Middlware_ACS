@@ -1,20 +1,29 @@
 import styled from "@emotion/styled";
+import { useGetDeviceStatus } from "../../../../hooks/useThridParty";
 
 interface Props {
-    type: "_Device_all" | "_Device_error";
+  type: "_Device_all" | "_Device_error";
 }
 
 const DeviceStatCard = ({ type }: Props) => {
-    const isError = type === "_Device_error";
+  const isError = type === "_Device_error";
+  const { data } = useGetDeviceStatus();
 
-    return (
-        <Wrapper>
-            <InfoBox $status={isError ? "error" : "offline"}>
-                <p>{isError ? "고장난기기" : "전체기기"}</p>
-                <p>{isError ? "12" : "57"}</p>
-            </InfoBox>
-        </Wrapper>
-    );
+  const robots = data?.robots ?? [];
+  const chargers = data?.chargers ?? [];
+
+  const total = robots.length + chargers.length;
+  const broken = robots.filter((r) => r.paused).length;
+
+  return (
+    <Wrapper>
+      <InfoBox $status={isError ? "error" : "offline"}>
+        <p>{isError ? "멈춘 기기" : "전체기기"}</p>
+        <p>{isError ? broken : total}</p>
+        <p>{isError ? "" : "AMR : " + robots.length + " 충전기 : " + chargers.length}</p>
+      </InfoBox>
+    </Wrapper>
+  );
 };
 
 export default DeviceStatCard;
@@ -50,6 +59,13 @@ const InfoBox = styled.div<{ $status: "offline" | "error" }>`
     font-size: 28px;
     font-weight: 800;
     color: ${(props) => (props.$status === "error" ? "#9f1239" : "#334155")};
+    margin: 0;
+  }
+
+  p:nth-of-type(3) {
+    font-size: 13px;
+    font-weight: 600;
+    color: ${(props) => (props.$status === "error" ? "#e11d48" : "#64748b")};
     margin: 0;
   }
 `;

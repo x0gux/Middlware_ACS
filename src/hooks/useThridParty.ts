@@ -8,6 +8,8 @@ import {
     fetchWorkSection,
     fetchMissionSection,
     fetchReservationSection,
+    fetchDeviceStatus,
+    fetchAlarms
 } from "../api/Info";
 
 import { moveRobot, rackMoveRobot, chargeRobot, cancelMission } from "../api/manual";
@@ -23,6 +25,8 @@ export const digitalTwinKeys = {
     works: () => [...digitalTwinKeys.all, "works"] as const,
     missions: () => [...digitalTwinKeys.all, "missions"] as const,
     reservations: () => [...digitalTwinKeys.all, "reservations"] as const,
+    devices: () => [...digitalTwinKeys.all, "devices"] as const,
+    alarms: () => [...digitalTwinKeys.all, "alarms"] as const,
 };
 
 // ── 2. Query Hooks (조회 계열) ──────────────────────────────────
@@ -51,6 +55,14 @@ export const useGetRobotStatus = () => {
         queryKey: digitalTwinKeys.robots(),
         queryFn: fetchRobotStatus,
         refetchInterval: 3000,
+    });
+};
+
+export const useGetDeviceStatus = () => {
+    return useQuery({
+        queryKey: digitalTwinKeys.devices(),
+        queryFn: fetchDeviceStatus,
+        refetchInterval: 5000,
     });
 };
 
@@ -96,6 +108,15 @@ export const useGetReservationSection = () => {
         queryKey: digitalTwinKeys.reservations(),
         queryFn: fetchReservationSection,
         refetchInterval: 2000,
+    });
+};
+
+/** 알람 정보 (Path: thirdparty/alarms, 3초 간격 폴링) */
+export const useGetAlarms = () => {
+    return useQuery({
+        queryKey: digitalTwinKeys.alarms(),
+        queryFn: fetchAlarms,
+        refetchInterval: 3000,
     });
 };
 

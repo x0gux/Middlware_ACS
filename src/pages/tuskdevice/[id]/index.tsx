@@ -1,92 +1,155 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import { InfoCard, InfoRow } from "../../../components/_DeviceComponents/InfoCard";
-import type { RobotStatus } from "../../../types/device";
+import type { RobotStatus, ChargerStatus } from "../../../types/device";
+import { getStatusInfo } from "../../../libs/statuscolor";
 
-const getStatusInfo = (robot: RobotStatus) => {
-  if (robot.offline) return { text: "오프라인", color: "#d32f2f", bg: "#ffebee" };
-  if (robot.fieldViolation) return { text: "영역 이탈", color: "#d32f2f", bg: "#ffebee" };
-  if (robot.paused) return { text: "일시정지", color: "#ed6c02", bg: "#fff3e0" };
-  if (robot.driving) return { text: "주행중", color: "#2e7d32", bg: "#e8f5e9" };
-  return { text: "대기중", color: "#1976d2", bg: "#e3f2fd" };
+type DeviceData = RobotStatus | ChargerStatus;
+
+// 충전기 데이터인지 판별하는 타입 가드 함수
+const isChargerData = (data: DeviceData): data is ChargerStatus => {
+  return "stat" in data || "available" in data || "robotSoc" in data || "ip" in data;
 };
 
 const RobotDetailPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const robotData = location.state as RobotStatus;
+  const deviceData = location.state as DeviceData;
 
-  if (!robotData) {
+  if (!deviceData) {
     return (
       <FallbackContainer>
         <h2>데이터를 불러올 수 없습니다.</h2>
-        <p>목록에서 다시 로봇을 선택해주세요.</p>
-        <BackButton onClick={() => navigate(-1)}>목록으로 돌아가기</BackButton>
+        <p>목록에서 다시 기기를 선택해주세요.</p>
+        <Backbutton onClick={() => navigate(-1)}>목록으로 돌아가기</Backbutton>
       </FallbackContainer>
     );
   }
+  const statusInfo = getStatusInfo(deviceData);
 
-  const {
-    robotId, deviceType, operatingMode,
-    mapCode, resolvedMapCode,
-    taskId, load, driving, paused, fieldViolation, offline,
-    x, y, robotOrientation, batteryLevel, agvStat,
-  } = robotData;
-
-  const statusInfo = getStatusInfo(robotData);
-  const modeText =
-    operatingMode === 0 ? "MANUAL" : operatingMode === 1 ? "AUTOMATIC" : operatingMode === 2 ? "SERVICE" : "알수없음";
+  const isCharger = isChargerData(deviceData);
 
   return (
     <DashboardContainer>
-      <PageHeader>
+      <HeaderSection>
         <TitleGroup>
-          <BackButton onClick={() => navigate(-1)}>←</BackButton>
-          <h2>로봇 {robotId} 상세 정보</h2>
-          <StatusBadge color={statusInfo.color} bg={statusInfo.bg}>
-            {statusInfo.text}
-          </StatusBadge>
+          <Title>
+            <h2>
+              디바이스 관리 - {isCharger ? "충전기" : "로봇"} ID : {deviceData.id}
+            </h2>
+            <StatusBadge $color={statusInfo.color} $bg={statusInfo.bg}>
+              {statusInfo.text}
+            </StatusBadge>
+          </Title>
+          <p>
+            {isCharger
+              ? "미들웨어에 연결된 충전기의 상세 정보를 확인합니다."
+              : "미들웨어에 연결된 AMR/AGV 로봇의 정보를 확인합니다."}
+          </p>
         </TitleGroup>
-      </PageHeader>
+
+        <Backbutton onClick={() => navigate(-1)}>뒤로가기</Backbutton>
+      </HeaderSection>
 
       <GridContainer>
-        <InfoCard title="기본 및 맵 정보">
-          <InfoRow label="기기 타입">{deviceType}</InfoRow>
-          <InfoRow label="운영 모드">{modeText}</InfoRow>
-          <InfoRow label="현재 맵 코드">{mapCode}</InfoRow>
-          <InfoRow label="매핑된 맵 코드">{resolvedMapCode || "없음"}</InfoRow>
-        </InfoCard>
+        {isCharger ? (
+          /* ── 충전기 전용 상세 정보 ── */
+          <>
+            <InfoCard title="기본 및 네트워크 정보">
+              <InfoRow label="충전기 ID">{deviceData.id}</InfoRow>
+              <InfoRow label="기기 타입">{deviceData.deviceType || "미지정"}</InfoRow>
+              <InfoRow label="현재 맵 ID">{deviceData.mapId || "-"}</InfoRow>
+              <InfoRow label="IP 주소">{deviceData.ip || "미지정"}</InfoRow>
+            </InfoCard>
 
-        <InfoCard title="작업 및 운행 상태">
-          <InfoRow label="현재 작업 ID">{taskId || "대기중 (작업 없음)"}</InfoRow>
-          <InfoRow label="적재 상태">{load ? "적재됨" : "비어있음"}</InfoRow>
-          <InfoRow label="주행 여부">{driving ? "주행중" : "정지"}</InfoRow>
-          <InfoRow label="일시정지 여부">{paused ? "일시정지됨" : "정상 운행"}</InfoRow>
-          <InfoRow label="영역 이탈 여부" color={fieldViolation ? "#d32f2f" : undefined}>
-            {fieldViolation ? "이탈 발생" : "정상"}
-          </InfoRow>
-          <InfoRow label="네트워크 상태" color={offline ? "#d32f2f" : "#2e7d32"}>
-            {offline ? "오프라인" : "온라인"}
-          </InfoRow>
-        </InfoCard>
+            <InfoCard title="충전기 운영 상태">
+              <InfoRow label="충전 상태">
+                {deviceData.stat || (deviceData.available ? "사용 가능" : "충전 중")}
+              </InfoRow>
+              <InfoRow label="사용 가능 여부">
+                {deviceData.available ? "가능" : "불가 / 충전 중"}
+              </InfoRow>
+              <InfoRow
+                label="네트워크 상태"
+                color={deviceData.offline ? "#dc2626" : "#7e22ce"}
+              >
+                {deviceData.offline ? "오프라인" : "온라인"}
+              </InfoRow>
+            </InfoCard>
 
-        <InfoCard title="위치 정보">
-          <InfoRow label="좌표 (X, Y)">
-            {x.toFixed(2)}, {y.toFixed(2)}
-          </InfoRow>
-          <InfoRow label="로봇 방향 (각도)">{robotOrientation.toFixed(1)}°</InfoRow>
-          <InfoRow label="모션 상태 코드 (agvStat)">{agvStat ?? "-"}</InfoRow>
-        </InfoCard>
+            <InfoCard title="연결된 로봇 정보">
+              <InfoRow label="연결 로봇 ID">{deviceData.robotId || "연결 없음"}</InfoRow>
+              <InfoRow
+                label="로봇 배터리 잔량 (SoC)"
+                color={
+                  deviceData.robotSoc !== null &&
+                    deviceData.robotSoc !== undefined &&
+                    deviceData.robotSoc < 20
+                    ? "#dc2626"
+                    : "#7e22ce"
+                }
+                fontWeight={700}
+              >
+                {deviceData.robotSoc !== null && deviceData.robotSoc !== undefined
+                  ? `${deviceData.robotSoc}%`
+                  : "-"}
+              </InfoRow>
+            </InfoCard>
+          </>
+        ) : (
+          /* ── 로봇 전용 상세 정보 ── */
+          <>
+            <InfoCard title="기본 및 맵 정보">
+              <InfoRow label="로봇 ID">{deviceData.id}</InfoRow>
+              <InfoRow label="기기 타입">{deviceData.deviceType || "미지정"}</InfoRow>
+              <InfoRow label="현재 맵 ID">{deviceData.mapId || "-"}</InfoRow>
+            </InfoCard>
 
-        <InfoCard title="전력 상태">
-          <InfoRow
-            label="배터리 잔량"
-            color={batteryLevel < 20 ? "#d32f2f" : "#2e7d32"}
-            fontWeight={700}
-          >
-            {batteryLevel}%
-          </InfoRow>
-        </InfoCard>
+            <InfoCard title="작업 및 운행 상태">
+              <InfoRow label="현재 작업 ID">
+                {deviceData.taskId || "대기중 (작업 없음)"}
+              </InfoRow>
+              <InfoRow label="적재 상태">
+                {deviceData.load ? "적재됨" : "비어있음"}
+              </InfoRow>
+              <InfoRow label="주행 여부">
+                {deviceData.driving ? "주행중" : "정지"}
+              </InfoRow>
+              <InfoRow label="일시정지 여부">
+                {deviceData.paused ? "일시정지됨" : "정상 운행"}
+              </InfoRow>
+              <InfoRow
+                label="네트워크 상태"
+                color={deviceData.offline ? "#dc2626" : "#7e22ce"}
+              >
+                {deviceData.offline ? "오프라인" : "온라인"}
+              </InfoRow>
+            </InfoCard>
+
+            <InfoCard title="위치 정보">
+              <InfoRow label="좌표 (X, Y)">
+                {typeof deviceData.x === "number" ? deviceData.x.toFixed(2) : "0.00"},{" "}
+                {typeof deviceData.y === "number" ? deviceData.y.toFixed(2) : "0.00"}
+              </InfoRow>
+              <InfoRow label="로봇 방향 (Theta)">
+                {typeof deviceData.theta === "number"
+                  ? deviceData.theta.toFixed(1)
+                  : "0.0"}
+                °
+              </InfoRow>
+            </InfoCard>
+
+            <InfoCard title="전력 상태">
+              <InfoRow
+                label="배터리 잔량"
+                color={(deviceData.batteryCharge ?? 0) < 20 ? "#dc2626" : "#7e22ce"}
+                fontWeight={700}
+              >
+                {deviceData.batteryCharge ?? 0}%
+              </InfoRow>
+            </InfoCard>
+          </>
+        )}
       </GridContainer>
     </DashboardContainer>
   );
@@ -94,57 +157,82 @@ const RobotDetailPage = () => {
 
 export default RobotDetailPage;
 
-// --- Styled Components ---
+// ── Styled Components (기존 유지) ─────────────────────────────
 
-const DashboardContainer = styled.div`
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-  font-family: 'PretendardVariable', sans-serif;
+const Title = styled.div`
+  display: flex;
+  justify-content: space-round;
+  align-items: center;
+  gap: 16px;
 `;
 
-const PageHeader = styled.div`
-  margin-bottom: 24px;
-  border-bottom: 1px solid #e0e0e0;
+const StatusBadge = styled.span<{ $color: string; $bg: string }>`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${(props) => props.$color};
+  background-color: ${(props) => props.$bg};
+  padding: 4px 8px;
+  border-radius: 6px;
+`;
+
+const Backbutton = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #aa33ffff;
+  background-color: #dbb9ffff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #aa33ffff;
+
+  width: fit-content;
+  height: fit-content;
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: #efe0ffff;
+    color: #aa33ffff;
+  }
+`;
+
+const DashboardContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+const HeaderSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid #e9d5ff;
   padding-bottom: 16px;
 `;
 
 const TitleGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
   h2 {
-    margin: 0;
     font-size: 24px;
-    color: #111;
+    font-weight: 800;
+    color: #3b0764;
+    margin: 0 0 4px 0;
   }
-`;
-
-const BackButton = styled.button`
-  background: none;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.2s;
-  &:hover {
-    background: #f5f5f5;
+  p {
+    font-size: 14px;
+    color: #6b21a8;
+    margin: 0;
+    font-weight: 500;
+    opacity: 0.85;
   }
-`;
-
-const StatusBadge = styled.span<{ color: string; bg: string }>`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${(props) => props.color};
-  background-color: ${(props) => props.bg};
-  padding: 6px 12px;
-  border-radius: 8px;
 `;
 
 const GridContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
   gap: 20px;
 `;
 
@@ -155,6 +243,8 @@ const FallbackContainer = styled.div`
   justify-content: center;
   height: 60vh;
   gap: 16px;
-  font-family: 'PretendardVariable', sans-serif;
-  color: #555;
+  color: #6b21a8;
+  h2 {
+    color: #3b0764;
+  }
 `;

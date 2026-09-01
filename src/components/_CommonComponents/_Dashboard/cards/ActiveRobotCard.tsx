@@ -1,18 +1,25 @@
 import styled from "@emotion/styled";
+import { useGetRobotStatus } from "../../../../hooks/useThridParty";
 
 const ActiveRobotCard = () => {
-    return (
-        <Wrapper>
-            <InfoBox $status="online">
-                <p>온라인</p>
-                <p>34</p>
-            </InfoBox>
-            <InfoBox $status="offline">
-                <p>오프라인</p>
-                <p>23</p>
-            </InfoBox>
-        </Wrapper>
-    );
+  const { data: robots } = useGetRobotStatus();
+  const list = robots ?? [];
+
+  const online = list.filter((r) => !r.offline).length;
+  const offline = list.filter((r) => r.offline).length;
+
+  return (
+    <Wrapper>
+      <InfoBox $status="online">
+        <p>온라인</p>
+        <p>{online}</p>
+      </InfoBox>
+      <InfoBox $status="offline">
+        <p>오프라인</p>
+        <p>{offline}</p>
+      </InfoBox>
+    </Wrapper>
+  );
 };
 
 export default ActiveRobotCard;

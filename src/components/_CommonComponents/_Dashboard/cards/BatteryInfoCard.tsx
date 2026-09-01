@@ -1,53 +1,56 @@
 import styled from "@emotion/styled";
+import { useGetDeviceStatus } from "../../../../hooks/useThridParty";
 
 const BatteryInfoCard = () => {
-    // 충전 진행 중: 4 / 6대 (66%)
-    // 배터리 경고: 2대
-    const chargingCount = 4;
-    const totalStations = 6;
-    const warningCount = 2;
-    const chargingPercent = Math.round((chargingCount / totalStations) * 100);
+  const { data } = useGetDeviceStatus();
+  const robots = data?.robots ?? [];
+  const chargers = data?.chargers ?? [];
 
-    return (
-        <Wrapper>
-            <CardHeader><p>배터리 및 충전소</p></CardHeader>
-            <ContentWrapper>
-                {/* 원형 충전소 점유율 게이지 */}
-                <CircularGauge $percent={chargingPercent}>
-                    <GaugeCenter>
-                        <span className="label">충전소 가동률</span>
-                        <strong className="value">{chargingPercent}%</strong>
-                        <span className="sub">({chargingCount}/{totalStations} 대)</span>
-                    </GaugeCenter>
-                </CircularGauge>
+  const chargingCount = chargers.filter(
+    (c) => c.robotId !== "0"
+  ).length;
+  const totalStations = chargers.length;
 
-                {/* 하단 요약 정보 카드 (개선된 UI) */}
-                <StatusGrid>
-                    <StatusCard $type="purple">
-                        <CardHeaderRow>
+  const warningCount = robots.filter((r) => r.batteryCharge <= 20).length;
+  const chargingPercent =
+    totalStations > 0 ? Math.round((chargingCount / totalStations) * 100) : 0;
 
-                            <span className="title">충전 중</span>
-                        </CardHeaderRow>
-                        <CountRow>
-                            <strong className="highlight">{chargingCount}</strong>
-                            <span className="total">/ {totalStations}대</span>
-                        </CountRow>
-                    </StatusCard>
+  return (
+    <Wrapper>
+      <CardHeader><p>배터리 및 충전소</p></CardHeader>
+      <ContentWrapper>
+        <CircularGauge $percent={chargingPercent}>
+          <GaugeCenter>
+            <span className="label">충전소 가동률</span>
+            <strong className="value">{chargingPercent}%</strong>
+            <span className="sub">({chargingCount}/{totalStations} 대)</span>
+          </GaugeCenter>
+        </CircularGauge>
 
-                    <StatusCard $type="rose">
-                        <CardHeaderRow>
+        <StatusGrid>
+          <StatusCard $type="purple">
+            <CardHeaderRow>
+              <span className="title">충전 중</span>
+            </CardHeaderRow>
+            <CountRow>
+              <strong className="highlight">{chargingCount}</strong>
+              <span className="total">/ {totalStations}대</span>
+            </CountRow>
+          </StatusCard>
 
-                            <span className="title">배터리 경고</span>
-                        </CardHeaderRow>
-                        <CountRow>
-                            <strong className="highlight">{warningCount}</strong>
-                            <span className="total">대 (≤20%)</span>
-                        </CountRow>
-                    </StatusCard>
-                </StatusGrid>
-            </ContentWrapper>
-        </Wrapper>
-    );
+          <StatusCard $type="rose">
+            <CardHeaderRow>
+              <span className="title">배터리 경고</span>
+            </CardHeaderRow>
+            <CountRow>
+              <strong className="highlight">{warningCount}</strong>
+              <span className="total">대 (≤20%)</span>
+            </CountRow>
+          </StatusCard>
+        </StatusGrid>
+      </ContentWrapper>
+    </Wrapper>
+  );
 };
 
 export default BatteryInfoCard;
@@ -119,7 +122,6 @@ const GaugeCenter = styled.div`
   }
 `;
 
-/* 하단 카드 레이아웃 스타일 개선 */
 const StatusGrid = styled.div`
   width: 100%;
   display: grid;

@@ -1,28 +1,43 @@
-// ── 로봇 상태 (DigitalTwin AMRInfo = 미들웨어 AMRInformation[]) ──
+// 공통 API 응답 인터페이스
+export interface ApiResponse<T> {
+  ok: boolean;
+  error: string | null;
+  data: T;
+}
 
-/** DeviceOperatingMode (byte): 0=MANUAL, 1=AUTOMATIC, 2=SERVICE */
-export type OperatingMode = 0 | 1 | 2;
-
-/**
- * TUSK 미들웨어가 내려주는 로봇 1대분 스냅샷.
- * K-MReS 시절의 missionCode/robotType/nodeCode 등은 없고,
- * taskId / agvStat / load 등으로 대체되었다.
- */
+// 수정된 로봇 상태 인터페이스 (백엔드 JSON과 1:1 매칭)
 export interface RobotStatus {
-  robotId: string;
+  id: string;
   deviceType: string;
-  mapCode: string;
-  resolvedMapCode: string;
   x: number;
   y: number;
-  robotOrientation: number;
-  batteryLevel: number;
-  operatingMode: OperatingMode | null;
+  theta: number;             // 기존 robotOrientation -> theta
+  mapId: string;             // 기존 mapCode -> mapId
+  batteryCharge: number;      // 기존 batteryLevel -> batteryCharge
+  taskId: string | null;     // null 허용으로 변경
   offline: boolean;
   driving: boolean;
   paused: boolean;
-  fieldViolation: boolean;
   load: boolean;
-  agvStat: number | null;
-  taskId: string;
+}
+
+// 로봇 목록 API 응답 타입
+export type RobotStatusListResponse = ApiResponse<RobotStatus[]>;
+
+export interface ChargerStatus {
+  id: string;
+  mapId?: string | null;
+  deviceType?: string | null;
+  offline?: boolean | null;
+  available?: boolean | null;
+  stat?: string | null;
+  robotId?: string | null;
+  robotSoc?: number | null; // 충전 중인 로봇의 배터리 잔량 (%)
+  ip?: string | null;
+}
+
+// 충전기 API 호출 전용 파라미터 타입 (필요 시 활용)
+export interface FetchChargersParams {
+  mapId?: string;
+  availableOnly?: boolean;
 }
