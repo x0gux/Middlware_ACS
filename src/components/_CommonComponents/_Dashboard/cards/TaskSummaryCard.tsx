@@ -1,26 +1,21 @@
 import styled from "@emotion/styled";
-import {
-    useGetWorkSection,
-    useGetMissionSection,
-    useGetReservationSection,
-} from "../../../../hooks/useThridParty";
+import { useGetWorkSection } from "../../../../hooks/useThridParty";
 
 const TaskSummaryCard = () => {
     const { data: workData } = useGetWorkSection();
-    const { data: missionData } = useGetMissionSection();
-    const { data: reservationData } = useGetReservationSection();
+    const tasks = workData ?? [];
 
-    const inProgress = workData?.length ?? 0;
-    const pending = missionData?.length ?? 0;
-    const reserved = reservationData?.length ?? 0;
-    const failed = (workData ?? []).filter((w) => w.Value.errorCode).length;
+    const completed = tasks.filter((t) => t.state.toLowerCase() === "completed").length;
+    const running = tasks.filter((t) => t.state.toLowerCase() === "running").length;
+    const pending = tasks.filter((t) => t.state.toLowerCase() === "created").length;
+    const failed = tasks.filter((t) => t.state.toLowerCase() === "cancelled" || Boolean(t.lastError)).length;
 
-    const total = inProgress + pending + reserved + failed;
-    const safeTotal = total > 0 ? total : 1;
+    const total = completed + running + pending + failed;
+    const safe = total > 0 ? total : 1;
 
-    const p1 = ((inProgress + pending + reserved) / safeTotal) * 100;
-    const p2 = ((pending + reserved) / safeTotal) * 100;
-    const p3 = (reserved / safeTotal) * 100;
+    const p1 = (completed / safe) * 100;
+    const p2 = p1 + (running / safe) * 100;
+    const p3 = p2 + (pending / safe) * 100;
 
     return (
         <Wrapper>
@@ -34,14 +29,14 @@ const TaskSummaryCard = () => {
                 </DonutChart>
 
                 <ChartLegend>
+                    <LegendItem $color="#16a34a">
+                        <span className="dot" /><span className="label">완료</span><strong>{completed}</strong>
+                    </LegendItem>
                     <LegendItem $color="#2563eb">
-                        <span className="dot" /><span className="label">진행 중</span><strong>{inProgress}</strong>
+                        <span className="dot" /><span className="label">진행 중</span><strong>{running}</strong>
                     </LegendItem>
                     <LegendItem $color="#7e22ce">
                         <span className="dot" /><span className="label">대기 중</span><strong>{pending}</strong>
-                    </LegendItem>
-                    <LegendItem $color="#16a34a">
-                        <span className="dot" /><span className="label">예약</span><strong>{reserved}</strong>
                     </LegendItem>
                     <LegendItem $color="#dc2626">
                         <span className="dot" /><span className="label">지연/실패</span><strong>{failed}</strong>
@@ -86,10 +81,10 @@ const DonutChart = styled.div<{ $p1: number; $p2: number; $p3: number }>`
   justify-content: center;
   flex-shrink: 0;
   background: conic-gradient(
-    #dc2626 0% ${(props) => props.$p3}%,
-    #16a34a ${(props) => props.$p3}% ${(props) => props.$p2}%,
-    #7e22ce ${(props) => props.$p2}% ${(props) => props.$p1}%,
-    #2563eb ${(props) => props.$p1}% 100%
+    #16a34a 0% ${(props) => props.$p1}%,
+    #2563eb ${(props) => props.$p1}% ${(props) => props.$p2}%,
+    #7e22ce ${(props) => props.$p2}% ${(props) => props.$p3}%,
+    #dc2626 ${(props) => props.$p3}% 100%
   );
 `;
 
