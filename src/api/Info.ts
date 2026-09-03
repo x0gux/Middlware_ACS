@@ -1,22 +1,23 @@
-import { MAP_CODE, postDigitalTwin } from "./base";
+import { MAP_CODE, postThirdparty } from "./base";
 import type { ConnectionInfo } from "../types/connection";
-import type { LineInfo, NodeInfo, EdgeInfo } from "../types/node";
+import type { LineInfo, MapDetailsInfo, MapPointInfo, MapLineInfo } from "../types/node";
 import type { RobotStatus, ChargerStatus } from "../types/device";
+import type { StorageInfo } from "../types/map";
 import type { TaskDto } from "../types/work";
 
 // ── C# 미들웨어 엔드포인트 연동 (ThirdParty Handlers) ──────────────
 
 /** 대외 연결 및 스토리지 상태 (Path: "thirdparty/storage") */
 export const fetchConnectionInfo = () =>
-  postDigitalTwin<ConnectionInfo[]>('thirdparty/storage');
+  postThirdparty<ConnectionInfo[]>('thirdparty/storage');
 
 /** 라인 PLC / 스토리지 상태 (Path: "thirdparty/storage") */
 export const fetchLineInfo = () =>
-  postDigitalTwin<LineInfo[]>('thirdparty/storage');
+  postThirdparty<LineInfo[]>('thirdparty/storage');
 
 /** 로봇 목록 조회 (Path: "thirdparty/robots") */
 export const fetchRobotStatus = () =>
-  postDigitalTwin<RobotStatus[]>('thirdparty/robots');
+  postThirdparty<RobotStatus[]>('thirdparty/robots');
 
 
 // 함수 외부에 최신 성공 데이터를 보관할 변수 선언
@@ -26,7 +27,7 @@ let lastKnownChargers: ChargerStatus[] = [];
 export const fetchDeviceStatus = async () => {
   const [robots, chargers] = await Promise.all([
     // 1. 로봇 요청
-    postDigitalTwin<RobotStatus[]>('thirdparty/robots')
+    postThirdparty<RobotStatus[]>('thirdparty/robots')
       .then((data) => {
         if (Array.isArray(data)) {
           lastKnownRobots = data; // 성공 시 최신값 갱신
@@ -39,7 +40,7 @@ export const fetchDeviceStatus = async () => {
       }),
 
     // 2. 충전기 요청
-    postDigitalTwin<ChargerStatus[]>('thirdparty/chargers')
+    postThirdparty<ChargerStatus[]>('thirdparty/chargers')
       .then((data) => {
         if (Array.isArray(data)) {
           lastKnownChargers = data; // 성공 시 최신값 갱신
@@ -57,44 +58,51 @@ export const fetchDeviceStatus = async () => {
     chargers,
   };
 };
-/** 맵 상세 정보를 통한 노드 목록 (Path: "thirdparty/maps/info") */
-export const fetchNodeStatus = () =>
-  postDigitalTwin<NodeInfo[]>('thirdparty/maps/info', { mapName: MAP_CODE });
+/** 맵 상세 정보(노드+엣지) (Path: "thirdparty/maps/info") — 신 미들웨어 MapDetailsDto { points, lines } */
+export const fetchMapDetails = () =>
+  postThirdparty<MapDetailsInfo>('thirdparty/maps/info', { mapName: MAP_CODE });
 
-/** 맵 상세 정보를 통한 엣지 목록 (Path: "thirdparty/maps/info") */
-export const fetchEdgeStatus = () =>
-  postDigitalTwin<EdgeInfo[]>('thirdparty/maps/info', { mapName: MAP_CODE });
+/** 노드 목록 (맵 상세의 points) */
+export const fetchNodeStatus = async (): Promise<MapPointInfo[]> =>
+  (await fetchMapDetails()).points ?? [];
+
+export const fetchStorageStatus = async () =>
+  postThirdparty<StorageInfo[]>('thirdparty/storage');
+
+/** 엣지 목록 (맵 상세의 lines) */
+export const fetchEdgeStatus = async (): Promise<MapLineInfo[]> =>
+  (await fetchMapDetails()).lines ?? [];
 
 /** 전체/수행 중 작업 목록 (Path: "thirdparty/tasks") */
 export const fetchWorkSection = () =>
-  postDigitalTwin<TaskDto[]>('thirdparty/tasks');
+  postThirdparty<TaskDto[]>('thirdparty/tasks');
 
 /** 대기 중 작업 목록 (Path: "thirdparty/tasks") */
 export const fetchMissionSection = () =>
-  postDigitalTwin<TaskDto[]>('thirdparty/tasks');
+  postThirdparty<TaskDto[]>('thirdparty/tasks');
 
 /** 예약된 작업 목록 (Path: "thirdparty/tasks") */
 export const fetchReservationSection = () =>
-  postDigitalTwin<TaskDto[]>('thirdparty/tasks');
+  postThirdparty<TaskDto[]>('thirdparty/tasks');
 
 // ── 미들웨어 추가 엔드포인트 ──────────────────────────────────────
 
 /** 충전기 목록 조회 (Path: "thirdparty/chargers") */
 export const fetchChargers = () =>
-  postDigitalTwin<unknown[]>('thirdparty/chargers');
+  postThirdparty<unknown[]>('thirdparty/chargers');
 
 /** 알람 정보 조회 (Path: "thirdparty/alarms") */
 export const fetchAlarms = () =>
-  postDigitalTwin<unknown[]>('thirdparty/alarms');
+  postThirdparty<unknown[]>('thirdparty/alarms');
 
 /** 맵 이름 목록 조회 (Path: "thirdparty/maps") */
 export const fetchMapNames = () =>
-  postDigitalTwin<string[]>('thirdparty/maps');
+  postThirdparty<string[]>('thirdparty/maps');
 
 /** 용기 타입 목록 조회 (Path: "thirdparty/containers") */
 export const fetchContainerTypes = () =>
-  postDigitalTwin<unknown[]>('thirdparty/containers');
+  postThirdparty<unknown[]>('thirdparty/containers');
 
 /** 헬스 체크 (Path: "thirdparty/health") */
 export const fetchHealth = () =>
-  postDigitalTwin<string>('thirdparty/health');
+  postThirdparty<string>('thirdparty/health');

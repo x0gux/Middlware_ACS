@@ -1,6 +1,4 @@
-// ── 노드/엣지/라인 (DigitalTwin NodeInfo · EdgeInfo · LineInfo) ──
 
-/** LineBooleanData (boolean 신호: Key, Value) */
 export interface BoolSignal {
   Key: string;
   Value: boolean;
@@ -26,23 +24,23 @@ export interface LineInfo {
   _EmergencyStop: boolean;
 }
 
-/** NodeInfo 응답 항목 (미들웨어 NodeInformation) */
-export interface NodeInfo {
-  mapCode: string;
-  nodeCode: string;
-  nodeLabel: string;
-  externalCode: string;
-  functionType: number;
-  containerModelCode: string[];
-  containerStopAngle: string;
-  xCoordinate: number;
-  yCoordinate: number;
+/** 지도 포인트(노드) 응답 항목 (신 미들웨어 MapPointDto) */
+export interface MapPointInfo {
+  dataCode: string;
+  x: number;
+  y: number;
+  dataType: string;
 }
 
-/** EdgeInfo 응답 항목 (미들웨어 EdgeInformation) */
-export interface EdgeInfo {
-  mapCode: string;
-  beginNodeLabel: string;
-  endNodeLabel: string;
-  isEdgeBothWay: boolean;
+/** 지도 라인(엣지) 응답 항목 (신 미들웨어 MapLineDto) */
+export interface MapLineInfo {
+  lineCode: string;
+  nodeStart: string;
+  nodeEnd: string;
+}
+
+/** 지도 상세(노드+엣지) 응답 (신 미들웨어 MapDetailsDto) */
+export interface MapDetailsInfo {
+  points: MapPointInfo[];
+  lines: MapLineInfo[];
 }

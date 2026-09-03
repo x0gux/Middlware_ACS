@@ -1,14 +1,15 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { useEffect, useState } from 'react';
-import { fetchNodeStatus } from '../../api/Info';
+import { fetchNodeStatus, fetchStorageStatus } from '../../api/Info';
 import { moveRobot, rackMoveRobot, chargeRobot } from '../../api/manual';
-import type { NodeInfo } from '../../types/node';
+import type { MapPointInfo } from '../../types/node';
 import type { RobotStatus } from '../../types/device';
+import type { StorageInfo } from '../../types/map';
 
 type SelectedInfo =
   | { type: 'robot'; data: RobotStatus }
-  | { type: 'node'; data: NodeInfo }
+  | { type: 'node'; data: MapPointInfo }
   | null;
 
 interface MapInfoModalProps {
@@ -22,19 +23,20 @@ export default function MapInfoModal({ info, onClose }: MapInfoModalProps) {
   const [command, setCommand] = useState<Command>(null);
   const [startNode, setStartNode] = useState('');
   const [targetNode, setTargetNode] = useState('');
-  const [nodes, setNodes] = useState<NodeInfo[]>([]);
+  const [nodes, setNodes] = useState<MapPointInfo[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [storage, setStorage] = useState<StorageInfo[]>([]);
+  const [targetStorage, setTargetStorage] = useState('');
 
   useEffect(() => {
     fetchNodeStatus().then(setNodes).catch((e) => console.error(e));
+    fetchStorageStatus().then(setStorage).catch((e) => console.error(e));
   }, []);
 
-  useEffect(() => {
-    if (info?.type === 'node') {
-      setCommand(null);
-    }
-  }, [info?.type]);
+  if (info?.type === 'node' && command !== null) {
+    setCommand(null);
+  }
 
   if (!info) return null;
 
@@ -47,7 +49,7 @@ export default function MapInfoModal({ info, onClose }: MapInfoModalProps) {
     try {
       const robotId = info.data.id;
       let result;
-      if (command === 'move') result = await moveRobot(robotId, targetNode);
+      if (command === 'move') result = await moveRobot(robotId, targetStorage);
       else if (command === 'rackmove') result = await rackMoveRobot(robotId, startNode, targetNode);
       else if (command === 'charge') result = await chargeRobot(robotId, targetNode);
       else return;
@@ -75,13 +77,13 @@ export default function MapInfoModal({ info, onClose }: MapInfoModalProps) {
           <InfoGroup>
             <Infoname>
               <MainText>
-                {isRobot ? `로봇 ID: ${info.data.id}` : `노드: ${info.data.nodeLabel}`}
+                {isRobot ? `로봇 ID: ${info.data.id}` : `노드: ${info.data.dataCode}`}
               </MainText>
               {isRobot && <SubText>배터리: {info.data.batteryCharge}%</SubText>}
               {isRobot && info.data.taskId && <SubText>현재 작업: {info.data.taskId}</SubText>}
               {!isRobot && (
                 <SubText>
-                  좌표: {info.data.xCoordinate.toFixed(2)} / {info.data.yCoordinate.toFixed(2)}
+                  좌표: {info.data.x.toFixed(2)} / {info.data.y.toFixed(2)}
                 </SubText>
               )}
             </Infoname>
@@ -102,8 +104,8 @@ export default function MapInfoModal({ info, onClose }: MapInfoModalProps) {
                   <label>시작 지점</label>
                   <select value={startNode} onChange={(e) => setStartNode(e.target.value)}>
                     <option value="">선택</option>
-                    {nodes.map((n) => (
-                      <option key={n.nodeCode} value={n.nodeLabel}>{n.nodeLabel}</option>
+                    {storage.map((s, i) => (
+                      <option key={s.name} value={s.name}>{`S${i + 1} (${s.name})`}</option>
                     ))}
                   </select>
                 </Field>
@@ -111,15 +113,15 @@ export default function MapInfoModal({ info, onClose }: MapInfoModalProps) {
 
               <Field>
                 <label>목적지</label>
-                <select value={targetNode} onChange={(e) => setTargetNode(e.target.value)}>
+                <select value={targetStorage} onChange={(e) => setTargetStorage(e.target.value)}>
                   <option value="">선택</option>
-                  {nodes.map((n) => (
-                    <option key={n.nodeCode} value={n.nodeLabel}>{n.nodeLabel}</option>
+                  {storage.map((s, i) => (
+                    <option key={s.name} value={s.name}>{`n${i + 1} (${s.name})${nodes[i]?.dataCode ? ` + (${nodes[i].dataCode})` : ''}`}</option>
                   ))}
                 </select>
               </Field>
 
-              <ActionButton onClick={runCommand} disabled={busy || (command !== 'charge' && !targetNode)}>
+              <ActionButton onClick={runCommand} disabled={busy || (command !== 'charge' && !targetStorage)}>
                 {busy ? '전송 중...' : '실행'}
               </ActionButton>
               <ActionButton onClick={() => setCommand(null)}>취소</ActionButton>

@@ -27,7 +27,7 @@ const buildUrl = (endpoint: string) => {
  * @param endpoint 요청할 하위 경로 (예: 'thirdparty/robots')
  * @param payload 요청 바디 데이터
  */
-export async function postDigitalTwin<T>(
+export async function postThirdparty<T>(
   endpoint: string,
   payload: Record<string, unknown> & { dataType?: ThirdPartyDataType } = {}
 ): Promise<T> {

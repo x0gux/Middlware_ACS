@@ -1,4 +1,4 @@
-// ── ConnectionInfo (DigitalTwin ConnectionInformationData) ─────
+// ── ConnectionInfo (ThirdParty ConnectionInformationData) ─────
 // 미들웨어의 각 대외 연결 상태를 나타낸다.
 export interface ConnectionInfo {
   /** TUSK REST 도달 가능 여부 (IsLotharConnected) */
